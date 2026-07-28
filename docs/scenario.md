@@ -14,11 +14,9 @@ The motivating question is:
 
 > Can a streaming data system keep an energy-market intelligence platform fresh, correct, and queryable while it ingests high-volume tick data and continuously integrates slower, messier contextual data?
 
-## Data Layers
+## Data Domains
 
-The benchmark separates the data into coarse layers.
-
-| Layer | Role | Example Sources |
+| Domain | Role | Example Sources |
 |---|---|---|
 | Market stream | High-volume updates over instruments | DEBS 2022 trading ticks |
 | Instrument and company metadata | Entity resolution and sector grouping | DEBS symbols, Yahoo Finance-style metadata, OpenFIGI, LEI, Wikidata |
@@ -27,8 +25,6 @@ The benchmark separates the data into coarse layers.
 | News and event context | Text/event signals around companies and sectors | GDELT-style news events |
 | Climate exposure | Transition-risk and emissions context | Climate TRACE/EPA-style facility or asset data |
 | Derived serving state | Tables and views consumed by applications | live features, sector aggregates, prediction feature store |
-
-The current repository contains a concrete first dataset layer under `data/debs2022`: weekend raw tick files and symbol lists extracted from the DEBS 2022 trading dataset. The small examples under `datasets/sample-pre-etl` describe the intended shape of the broader pre-ETL source universe.
 
 ## Workload Classes
 
@@ -127,9 +123,11 @@ The source mix is intentionally asymmetric. Market ticks are the dominant high-v
 
 ## Evaluation Focus
 
-The benchmark should report separate metrics for each workload class rather than a single global score.
+The benchmark is scaled by the tick throughput. The benchmark metric is the maximum scale.
 
-Core metrics:
+A valid benchmark execution must meet thresholds.
+
+Thresholds:
 
 - sustainable tick throughput under freshness constraints;
 - end-to-end latency for market updates;
