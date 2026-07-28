@@ -75,7 +75,6 @@ Example dashboard views:
 - instruments with stale ticks, missing metadata, or unresolved identifiers;
 - live pipeline health and data freshness by source.
 
-Dashboard metrics should include query latency, result freshness, top-k correctness, and behavior under concurrent users.
 
 ### Alerts And Decision Support
 
@@ -108,36 +107,9 @@ Feature examples:
 
 The important system properties are freshness, correctness, feature reproducibility, and consistent alignment of event time across sources.
 
-## Benchmark Behavior
-
-The benchmark should support multiple execution modes:
-
-- **historical replay:** replay DEBS tick data using original event time;
-- **accelerated replay:** increase the rate to stress ingestion and view maintenance;
-- **context updates:** inject lower-volume metadata, news, energy, or climate updates;
-- **backfill plus live:** rebuild historical tables while maintaining live views;
-- **failure and recovery:** interrupt processing and measure catch-up and correctness;
-- **dashboard load:** run concurrent interactive queries during ingestion.
-
-The source mix is intentionally asymmetric. Market ticks are the dominant high-volume stream, while metadata, news, energy, and climate data are lower-volume but semantically rich. This reflects real market-intelligence systems, where the hardest integration problems are often not the largest streams.
-
 ## Evaluation Focus
 
 The benchmark is scaled by the tick throughput. The benchmark metric is the maximum scale.
 
-A valid benchmark execution must meet thresholds.
-
-Thresholds:
-
-- sustainable tick throughput under freshness constraints;
-- end-to-end latency for market updates;
-- materialized-view staleness;
-- dashboard query p50/p95/p99 latency;
-- correctness against deterministic offline computation;
-- feature freshness and label correctness;
-- unresolved entity coverage;
-- recovery time after failure;
-- cost or resources per replay scale.
-
-This makes EMIP a benchmark for complete streaming data products: not just processing a stream, but continuously turning heterogeneous raw data into reliable market intelligence.
+A valid benchmark execution must meet latency thresholds for every workload. All workloads have exact verifiable answers.
 
