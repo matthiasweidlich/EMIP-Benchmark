@@ -3,8 +3,10 @@
 
 The dataset contains 1 file per sensor each day. The schema of the csv file depends on the sensor type. Below we give an overview of these schemas and also give example data.
 
-As a first step, we focus on temperature and humidity only. We first drop files that do not include temperature and then  project all remaining files onto the following schema:
+As a first step, we focus on temperature and humidity only.
+-  Drop files that do not include temperature and then  project all remaining files onto the following schema:
 `sensor_id|lat|lon|timestamp|temperature|humidity`. 
+- Merge all sensor files per day.
 
 
 ## Sensor Types & Schemas (November 2021)
