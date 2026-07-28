@@ -10,6 +10,9 @@ interval. ELT pipelines in medallion architecture ingest, harmonize,
 and prepare the data. The resulting platform supports real-time
 alerts, dashboards, and long-term strategic projections/trends.
 
+See [docs/scenario.md](docs/scenario.md) for an extended description of
+the benchmark scenario and workload classes.
+
 ## Dataset Sketch
 
 The first sample dataset package is in [datasets/sample-pre-etl](datasets/sample-pre-etl). It contains small pre-ETL examples for the main source layers:
