@@ -8,7 +8,7 @@
   )
 - **Included measurements:** temperature and humidity
 - **Excluded measurements:** particulate matter
-- **Final format:** one CSV sorted by timestamp
+- **Final format:** one CSV (~ 3GB) sorted by timestamp
 
 The selected period matches the timeframe of the DEBS 2022 Grand Challenge dataset.
 
