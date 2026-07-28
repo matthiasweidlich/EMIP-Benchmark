@@ -16,15 +16,31 @@ The motivating question is:
 
 ## Data Domains
 
-| Domain | Role | Example Sources |
+| Domain | Role | Example Sources | Current Size / Scale | Update Behavior |
+|---|---|---|---|---|
+| Market stream | High-volume updates over instruments | DEBS 2022 trading ticks | Full DEBS week: about 289M tick events, 24.9 GB, 5,504 equities and indices. Current repo sample: weekend files `day13.csv` and `day14.csv`, about 59k lines total. | Main streamed input. Replay in event time or accelerated; benchmark scale is primarily controlled by tick throughput. |
+| Instrument and company metadata | Entity resolution and sector grouping | DEBS symbols, Yahoo Finance-style metadata, OpenFIGI, LEI, Wikidata | Current repo: 5,499 symbols, 2,996 equities, 2,503 indices, 5,486 symbol-to-ISIN mappings, 2,119 resolved equity metadata rows. | Static dimension data for a one-week benchmark run, except optional correction/update events for entity-resolution workloads. |
+| Company fundamentals | Slowly changing company state | filings, annual reports, financial facts | Expected to be much smaller than the tick stream for the one-week interval; typically one row per company, filing, metric, and reporting period. | Static for the default one-week benchmark, because annual/quarterly fundamentals rarely change within the replay window. Optional filing or restatement events may be injected for view-maintenance stress tests. |
+| Energy and commodity context | External drivers of market movement | EIA-style energy indicators, electricity generation, fuel prices | Small to medium time-series data: hourly, daily, weekly, or monthly indicators over the benchmark interval and relevant regions. | Low-rate contextual updates; usually replayed at natural timestamp frequency or loaded as slowly changing context. |
+| News and event context | Text/event signals around companies and sectors | GDELT-style news events | Current repo: 430,918 GKG records scanned for Nov 8-14, 2021; 49,298 energy-relevant records; 224,424 document-event links in compressed enrichment files. | Medium-rate event stream or micro-batch source. Can be replayed by publication time and joined with market windows. |
+| Climate exposure | Transition-risk and emissions context | Climate TRACE/EPA-style facility or asset data | Usually asset/facility-level annual or monthly data; much smaller and slower-moving than market ticks. | Static dimension/enrichment data for a one-week benchmark run. Updates are optional and model corrections or new disclosure releases. |
+| Derived serving state | Tables and views consumed by applications | live features, sector aggregates, prediction inputs, dashboard state | Size depends on configured workloads: typically proportional to instruments, sectors, windows, and retained feature history. | Continuously maintained by the system under test; freshness and correctness are benchmark outputs. |
+
+The default benchmark treats company metadata, company fundamentals, and climate exposure as static for the one-week DEBS interval. They provide relational and enrichment complexity without pretending that annual reports, sector classifications, or facility emissions update at tick-stream speed. Optional benchmark variants may inject corrections, late mappings, new filings, or restatements to test systems that support dynamic dimension updates.
+
+### Real-World Throughput
+
+The following rates describe approximate real-world or natural replay speed. Benchmark stress runs may accelerate these rates, but the natural rates are useful for defining baseline freshness expectations.
+
+| Domain | Natural Throughput / Update Rate | Notes |
 |---|---|---|
-| Market stream | High-volume updates over instruments | DEBS 2022 trading ticks |
-| Instrument and company metadata | Entity resolution and sector grouping | DEBS symbols, Yahoo Finance-style metadata, OpenFIGI, LEI, Wikidata |
-| Company fundamentals | Slowly changing company state | filings, annual reports, financial facts |
-| Energy and commodity context | External drivers of market movement | EIA-style energy indicators, electricity generation, fuel prices |
-| News and event context | Text/event signals around companies and sectors | GDELT-style news events |
-| Climate exposure | Transition-risk and emissions context | Climate TRACE/EPA-style facility or asset data |
-| Derived serving state | Tables and views consumed by applications | live features, sector aggregates, prediction feature store |
+| Market stream | About 478 ticks/s over the full seven-day DEBS interval; about 1.9k ticks/s when averaged over five 8.5-hour trading days. | Actual market traffic is bursty, so short-window peaks are higher. The benchmark scale factor should multiply this stream. |
+| Instrument and company metadata | Static for the default one-week run. | Metadata is loaded before replay. Optional correction streams may add low-rate updates for symbol, ISIN, sector, or company mappings. |
+| Company fundamentals | Static for the default one-week run. | Annual and quarterly facts do not normally change within the week. Optional filing/restatement events can be injected at low rate. |
+| Energy and commodity context | Low rate: hourly, daily, weekly, or monthly depending on series. | Treated as slowly changing context; replay by source timestamp or load as reference data. |
+| News and event context | Medium rate: current sample has 49,298 energy-relevant GKG records over seven days, about 0.08 records/s on average; 224,424 document-event links, about 0.37 links/s on average. | Real publication traffic is bursty. For alert workloads, replay by publication time rather than uniform rate. |
+| Climate exposure | Static for the default one-week run. | Facility and emissions disclosures are typically annual or monthly. Updates represent corrections or new disclosure releases. |
+| Derived serving state | No independent input rate. | Its update rate is induced by the market stream, context updates, and the configured view definitions. |
 
 ## Workload Classes
 
@@ -47,19 +63,20 @@ This workload stresses messy source ingestion, schema normalization, entity reso
 
 ### Materialized View Maintenance
 
-The materialized-view workload maintains continuously updated analytical state over the incoming data.
+The materialized-view workload maintains continuously updated analytical state over the incoming data. It should not be tied to a single fixed schema. Instead, the benchmark should define view families that systems may implement using their native representation, as long as the externally visible results are equivalent.
 
-Important views include:
+The maintained state should cover several generic categories:
 
-- `instrument_live_state`: latest price, bid/ask, spread, last update time, volume, and data-quality status per instrument;
-- `instrument_live_features`: rolling returns, volatility, spread, tick counts, and moving-average indicators;
-- `sector_market_state`: aggregate momentum, volume, and volatility by sector and exchange;
-- `company_profile`: current company metadata, sector, country, market-cap bucket, and identifier mappings;
-- `company_news_signal`: recent news intensity, event themes, tone, and salience per company;
-- `company_transition_exposure`: renewable-energy, fossil-fuel, emissions, or climate-risk exposure scores;
-- `prediction_feature_store`: latest feature vector per instrument or company for short-horizon prediction.
+- latest-state views over fast-moving entities, such as instruments, sectors, feeds, or alerts;
+- rolling aggregate views over event-time windows, such as price movement, volume, volatility, news intensity, or data-quality rates;
+- enrichment views that combine raw stream events with slower-changing metadata, such as company, sector, exchange, geography, or identifier mappings;
+- cross-domain views that relate market behavior to contextual signals, such as news, energy indicators, weather, or climate exposure;
+- feature views that expose the current inputs needed by prediction, alerting, or dashboard workloads;
+- data-quality and coverage views that track missing fields, unresolved identifiers, stale sources, duplicate records, and late arrivals.
 
-This workload stresses incremental maintenance, high-cardinality state, temporal joins, rolling windows, late context updates, partial entity coverage, and shared derived state.
+The benchmark should specify each view by its input relations, update semantics, expected result, freshness target, and correctness oracle, rather than by requiring a particular physical schema. This keeps the workload portable across stream processors, streaming databases, incremental view-maintenance systems, and lakehouse-style ELT engines.
+
+This workload stresses incremental maintenance, high-cardinality state, temporal joins, rolling windows, top-k maintenance, late context updates, partial entity coverage, and shared derived state.
 
 ### Dashboard Queries
 
@@ -112,4 +129,3 @@ The important system properties are freshness, correctness, feature reproducibil
 The benchmark is scaled by the tick throughput. The benchmark metric is the maximum scale.
 
 A valid benchmark execution must meet latency thresholds for every workload. All workloads have exact verifiable answers.
-
