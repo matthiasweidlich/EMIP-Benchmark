@@ -42,7 +42,7 @@ Missing humidity values are empty by default. A numeric sentinel such as `-1` ca
 
 # Get the data 
 
-The following contains all scripts and merges Sensor.Community weather data into one globally time-sorted CSV file.pip install -r requirements.txt
+The following contains all scripts and merges Sensor.Community weather data into one globally time-sorted CSV file.
 
 First, install requirements
 ```bash

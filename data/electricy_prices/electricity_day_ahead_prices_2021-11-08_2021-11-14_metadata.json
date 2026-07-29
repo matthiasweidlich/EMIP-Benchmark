@@ -1,0 +1,71 @@
+{
+  "source": "Fraunhofer ISE Energy-Charts API",
+  "api_endpoint": "https://api.energy-charts.info/price",
+  "start": "2021-11-08",
+  "end": "2021-11-14",
+  "zones": [
+    "DE-LU",
+    "FR",
+    "BE",
+    "NL",
+    "AT",
+    "CH"
+  ],
+  "zone_results": [
+    {
+      "bidding_zone": "DE-LU",
+      "timezone": "Europe/Berlin",
+      "records": 168,
+      "unit": "EUR / MWh",
+      "license_info": "CC BY 4.0 (creativecommons.org/licenses/by/4.0) from Bundesnetzagentur | SMARD.de",
+      "deprecated": false,
+      "request_url": "https://api.energy-charts.info/price?bzn=DE-LU&start=2021-11-08&end=2021-11-14"
+    },
+    {
+      "bidding_zone": "FR",
+      "timezone": "Europe/Paris",
+      "records": 168,
+      "unit": "EUR / MWh",
+      "license_info": "CC BY 4.0 (creativecommons.org/licenses/by/4.0) from Bundesnetzagentur | SMARD.de",
+      "deprecated": false,
+      "request_url": "https://api.energy-charts.info/price?bzn=FR&start=2021-11-08&end=2021-11-14"
+    },
+    {
+      "bidding_zone": "BE",
+      "timezone": "Europe/Brussels",
+      "records": 168,
+      "unit": "EUR / MWh",
+      "license_info": "CC BY 4.0 (creativecommons.org/licenses/by/4.0) from Bundesnetzagentur | SMARD.de",
+      "deprecated": false,
+      "request_url": "https://api.energy-charts.info/price?bzn=BE&start=2021-11-08&end=2021-11-14"
+    },
+    {
+      "bidding_zone": "NL",
+      "timezone": "Europe/Amsterdam",
+      "records": 168,
+      "unit": "EUR / MWh",
+      "license_info": "CC BY 4.0 (creativecommons.org/licenses/by/4.0) from Bundesnetzagentur | SMARD.de",
+      "deprecated": false,
+      "request_url": "https://api.energy-charts.info/price?bzn=NL&start=2021-11-08&end=2021-11-14"
+    },
+    {
+      "bidding_zone": "AT",
+      "timezone": "Europe/Vienna",
+      "records": 168,
+      "unit": "EUR / MWh",
+      "license_info": "CC BY 4.0 (creativecommons.org/licenses/by/4.0) from Bundesnetzagentur | SMARD.de",
+      "deprecated": false,
+      "request_url": "https://api.energy-charts.info/price?bzn=AT&start=2021-11-08&end=2021-11-14"
+    },
+    {
+      "bidding_zone": "CH",
+      "timezone": "Europe/Zurich",
+      "records": 168,
+      "unit": "EUR / MWh",
+      "license_info": "CC BY 4.0 (creativecommons.org/licenses/by/4.0) from Bundesnetzagentur | SMARD.de",
+      "deprecated": false,
+      "request_url": "https://api.energy-charts.info/price?bzn=CH&start=2021-11-08&end=2021-11-14"
+    }
+  ],
+  "total_records": 1008
+}
