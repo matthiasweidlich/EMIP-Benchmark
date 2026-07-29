@@ -13,6 +13,10 @@ alerts, dashboards, and long-term strategic projections/trends.
 See [docs/scenario.md](docs/scenario.md) for an extended description of
 the benchmark scenario and workload classes.
 
+See [docs/gold-schema.md](docs/gold-schema.md) for the source-backed
+gold-level relational schema that can be filled from the files under
+`data/`.
+
 ## Dataset Sketch
 
 The first sample dataset package is in [datasets/sample-pre-etl](datasets/sample-pre-etl). It contains small pre-ETL examples for the main source layers:
