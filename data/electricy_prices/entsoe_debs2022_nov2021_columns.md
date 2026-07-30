@@ -3,8 +3,9 @@
 **Source:** ENTSO-E Transparency Platform (transparency.entsoe.eu)  
 **Coverage:** Nov 8–14 2021 (Mon–Sun), Berlin time (CET = UTC+1)  
 **Rows:** 672 (one per 15-minute interval, 96 per day × 7 days)  
-**Columns:** 64  
-**Note on forward-filling:** FR and NL generation data is published hourly by their TSOs; those columns are forward-filled to 15-min (four identical values per hour). DE/LU reports natively at 15-min. Day-ahead prices are hourly auction results — held constant across all 15-min intervals within the hour.
+**Columns:** 69 (63 original + 6 imbalance price columns merged from document type A85)  
+**Note on forward-filling:** FR and NL generation data is published hourly by their TSOs; those columns are forward-filled to 15-min (four identical values per hour). DE/LU reports natively at 15-min. Day-ahead prices are hourly auction results — held constant across all 15-min intervals within the hour.  
+**Note on FR imbalance granularity:** RTE (France) reports imbalance prices at 30-min resolution; the `imbalance_FR_*` columns are therefore null on every alternate 15-min row (336 non-null / 672 total). DE-LU and NL imbalance columns are fully populated at 15-min.
 
 ---
 
@@ -157,3 +158,26 @@ This week sits in the middle of the **2021 European energy crisis** — making i
 - **France's nuclear output is ~39 GW vs a normal ~50+ GW** — maintenance outages are visible in `gen_FR_Nuclear_*`.
 - **DE wind is high** (~23–27 GW onshore on Nov 8 night) — driving DE prices down while FR/NL stay elevated, creating a strong Pareto frontier for carbon/cost-aware placement.
 - **This is NOT yet the 2022 crisis peak** (€700+/MWh); it's a moderate crisis week — good for "normal vs stress" comparison when combined with a 2022 slice.
+
+---
+
+## Imbalance settlement prices (columns 64–69, ENTSO-E document type A85)
+
+Actual post-delivery settlement prices applied to market parties who were
+long or short in the balancing timeframe. More volatile than day-ahead prices
+and directly reflects real-time supply/demand stress. DE-LU corresponds to the
+German reBAP price. FR reports at 30-min resolution (nulls on alternate rows).
+
+| # | Column | Unit | Description |
+|---|---|---|---|
+| 64 | `imbalance_DE_LU_long_EUR_MWh` | €/MWh | Long imbalance price for DE-LU: price paid to parties with a surplus in the settlement period. Fully populated at 15-min. |
+| 65 | `imbalance_DE_LU_short_EUR_MWh` | €/MWh | Short imbalance price for DE-LU: price charged to parties with a deficit. Fully populated at 15-min. |
+| 66 | `imbalance_FR_long_EUR_MWh` | €/MWh | Long imbalance price for France (RTE). **30-min resolution** — null on every other 15-min row. |
+| 67 | `imbalance_FR_short_EUR_MWh` | €/MWh | Short imbalance price for France (RTE). **30-min resolution** — null on every other 15-min row. |
+| 68 | `imbalance_NL_long_EUR_MWh` | €/MWh | Long imbalance price for Netherlands (TenneT NL). Fully populated at 15-min. |
+| 69 | `imbalance_NL_short_EUR_MWh` | €/MWh | Short imbalance price for Netherlands (TenneT NL). Fully populated at 15-min. |
+
+**Long vs short:** when the system has a surplus (more generation than load), the long price is paid out to surplus parties — it can go negative when renewables flood the grid. When the system is short (less generation than load), the short price is charged to deficit parties — it spikes during supply crunches. The spread between long and short widens under stress; a narrow spread indicates a balanced system.
+
+**Robustness signal:** unlike the day-ahead price (set the day before), imbalance prices reflect what actually happened. Large divergence between `price_dayahead_*` and `imbalance_*_long/short` in the same interval indicates that the day-ahead market mispriced the hour — exactly the kind of signal a materialized-view maintenance workload should detect and react to.
+
