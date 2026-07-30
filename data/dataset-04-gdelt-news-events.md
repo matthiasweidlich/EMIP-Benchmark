@@ -1,22 +1,69 @@
 # Source 4: GDELT / News Events
 
-Raw public news and event signals. This source adds context that may explain or predict market movement.
+# GDELT Energy-Market Enrichment — Nov 8–14, 2021
 
-## Pre-ETL Sample Tuples
+Built from the **GDELT GKG 1.0** daily files (`YYYYMMDD.gkg.csv`) for the week, filtered to
+energy-relevant documents and linked to the **CAMEO Event** files already downloaded.
 
-| event_id | event_time | source_url | organization_text | theme | location | tone | salience |
-|---|---|---|---|---|---|---:|---:|
-| gdelt-001 | 2021-11-08T08:15:00Z | news.example/a | Shell | ENERGY;OIL;CLIMATE_POLICY | Netherlands | -1.8 | 0.72 |
-| gdelt-002 | 2021-11-08T08:22:00Z | news.example/b | Airbus | AVIATION;EMISSIONS;EU_POLICY | France | -0.9 | 0.61 |
-| gdelt-003 | 2021-11-08T08:40:00Z | news.example/c | Siemens Energy | RENEWABLES;GRID;HYDROGEN | Germany | 2.4 | 0.80 |
-| gdelt-004 | 2021-11-08T09:05:00Z | news.example/d | ASML | SEMICONDUCTORS;SUPPLY_CHAIN | Netherlands | -2.2 | 0.76 |
-| gdelt-005 | 2021-11-08T09:10:00Z | news.example/e | DAX companies | MARKETS;EUROPE;INFLATION | Germany | -1.1 | 0.55 |
+- GKG records scanned: **430,918**
+- Energy-relevant records: **49,298** (11.4%)
+- Referenced CAMEO events: **105,910** — **102,415 (96.7%)** matched in the event files
+- Document × event links: **224,424**
 
-## ETL Notes
+Both files are **tab-delimited, UTF-8, with a header row**.
 
-- Resolve `organization_text` to canonical companies where possible.
-- Split and classify semicolon-delimited themes.
-- Deduplicate repeated stories or syndicated articles.
-- Align events to market windows before and after publication time.
-- Create `news_event`, `company_mention`, and `company_news_signal` tables.
+---
+
+## Table 1 — `gkg_energy_enriched.csv`  (one row per energy news document)
+
+| Column | Meaning |
+|---|---|
+| DATE | Publication date (YYYYMMDD) |
+| SOURCE | Source domain(s) |
+| SOURCEURL | Article URL |
+| NUMARTS | Article count for the record (salience / buzz weight) |
+| ENERGY_SECTORS | `|`-separated sub-sectors (OIL, NATURAL_GAS, COAL, NUCLEAR, SOLAR, WIND, HYDRO, BIOFUEL, POWER_GRID, PIPELINES_INFRA, PRICES_SUBSIDIES, RENEWABLE_GENERAL, CARBON_TRANSITION, ENERGY_GENERAL) |
+| ENERGY_THEMES | `|`-separated raw GDELT/World-Bank theme codes that triggered the match |
+| TONE_AVG | GDELT document tone (−100…+100); bullish/bearish proxy |
+| TONE_POS / TONE_NEG | Positive / negative word density |
+| TONE_POLARITY | Emotionally charged language density |
+| TONE_ACTIVITY | Activity-reference density |
+| TONE_SELFREF | Self/group-reference density |
+| ENERGY_TICKERS | `|`-separated equity tickers (precise exact/word-boundary match) |
+| ENERGY_ENTITIES | `|`-separated market-moving non-equity entities (OPEC, IEA, EIA, Gazprom, Aramco, Rosneft, PDVSA…) |
+| COUNTRY_CODES | `|`-separated FIPS country codes mentioned |
+| TOP_LOCATIONS | up to 3 `Name|CC|Lat|Long`, ` ;; `-separated |
+| PERSONS | `;`-separated persons (GDELT extraction) |
+| CAMEO_EVENT_IDS | `,`-separated GlobalEventIDs → join key to the event files / Table 2 |
+
+## Table 2 — `gkg_energy_event_link.csv`  (bridge: doc ⋈ CAMEO event)
+
+| Column | Meaning |
+|---|---|
+| GlobalEventID | CAMEO event id (FK to event files) |
+| DATE | News document date |
+| EventRootCode | CAMEO root action code |
+| QuadClass / QuadClassName | 1 VerbalCoop, 2 MaterialCoop, 3 VerbalConflict, 4 MaterialConflict |
+| GoldsteinScale | −10…+10 conflict/cooperation intensity |
+| Event_AvgTone | Event-level tone from the event record |
+| ActionGeo_FullName / ActionGeo_CC | Where the event took place |
+| Energy_Sectors | Sectors of the linking news document |
+| Doc_Tone | Document tone of the linking news document |
+| Doc_Tickers | Tickers of the linking news document |
+| SourceURL | Linking news document URL |
+
+---
+
+## Notes & caveats
+- **Tone is GDELT document-level tone**, not a finance-tuned sentiment model. It is a reasonable
+  first-order bull/bear proxy; a FinBERT pass on titles would sharpen it.
+- **Ticker precision** favored over recall: exact-name + collision-free word-boundary matching only,
+  so arenas ("Xcel Energy Center"), universities ("Old Dominion"), and people ("Sherwin Williams")
+  are deliberately *not* tagged. Some real mentions are therefore missed.
+- **Entity variants** are not yet canonicalized (e.g., "energy information administration" vs
+  "u s energy information administration" are separate strings). Trivial to fold.
+- **Not in GKG 1.0** (would require GKG 2.1, the 15-min v2 feed): numeric **AMOUNTS**
+  (barrels, MW, prices, %), **GCAM** 2,000+ emotion/theme dimensions, quotations, and
+  character-offset entity positions. These are the highest-value additions for a trading terminal.
+
 
