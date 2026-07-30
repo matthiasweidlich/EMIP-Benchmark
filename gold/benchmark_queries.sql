@@ -1,5 +1,5 @@
 -- EMIP benchmark queries over the silver/gold layers.
--- Five queries, one per workload class (see docs/some-interesting-queries.md
+-- Six queries, one per workload class (see docs/some-interesting-queries.md
 -- and the DEBS 2022 Grand Challenge, arXiv:2206.13237). Each is a plain
 -- SELECT against silver/emip.duckdb. Run all: gold/run_benchmark_queries.sh
 -- Note: the runner splits statements on the semicolon character, so keep
@@ -235,3 +235,53 @@ GROUP BY 1, 2
 HAVING count(*) >= 200
 ORDER BY abs(corr_stock_vs_power) DESC
 LIMIT 10;
+
+-- B6 News-shock event study (news as the event driver, fundamentals as
+-- conditioning - together with B1-B5 this completes dataset coverage).
+-- A shock is a (company, day) whose news pressure is unusual for that
+-- company - mention volume well above its own average, or strongly
+-- negative tone. The reaction is the close-to-close abnormal return
+-- (company minus sector median) the same day and the next trading day:
+-- GDELT GKG 1.0 is date-granular, so day-grain windows are the honest
+-- finest resolution. Fundamentals enter as a leverage bucket
+-- (equity/assets from the latest pre-week ESEF filing).
+WITH pressure AS (
+    SELECT company_id, publication_date AS day, doc_count, tone_avg,
+           conflict_event_count,
+           doc_count / avg(doc_count) OVER (PARTITION BY company_id) AS news_ratio
+    FROM gold.fact_company_news_day
+), shocks AS (
+    SELECT * FROM pressure
+    WHERE doc_count >= 2 AND (news_ratio >= 1.5 OR tone_avg <= -2)
+), leverage AS (
+    SELECT company_id,
+           max(value) FILTER (metric = 'total_equity')
+               / nullif(max(value) FILTER (metric = 'total_assets'), 0) AS equity_ratio
+    FROM gold.fact_fundamentals_latest
+    GROUP BY 1
+), comp_ret AS (
+    SELECT c.company_id, c.sector, d.trading_day, d.day_return
+    FROM gold.dim_company c
+    JOIN gold.fact_instrument_day d ON d.instrument_id = c.primary_instrument_id
+    WHERE d.day_return IS NOT NULL AND c.sector IS NOT NULL
+), abnormal AS (
+    SELECT company_id, trading_day, abn_ret,
+           lead(abn_ret) OVER (PARTITION BY company_id ORDER BY trading_day) AS abn_ret_next
+    FROM (SELECT r.company_id, r.trading_day,
+                 r.day_return - median(r.day_return)
+                     OVER (PARTITION BY r.sector, r.trading_day) AS abn_ret
+          FROM comp_ret r)
+)
+SELECT c.company_name, c.sector, s.day, s.doc_count,
+       round(s.news_ratio, 2) AS news_ratio, round(s.tone_avg, 2) AS tone,
+       s.conflict_event_count AS conflict_events,
+       CASE WHEN l.equity_ratio IS NULL THEN '(no fundamentals)'
+            WHEN l.equity_ratio < 0.35 THEN 'high leverage'
+            ELSE 'low/mid leverage' END AS leverage_bucket,
+       round(100 * a.abn_ret, 3) AS abn_ret_pct,
+       round(100 * a.abn_ret_next, 3) AS abn_ret_next_pct
+FROM shocks s
+JOIN gold.dim_company c USING (company_id)
+LEFT JOIN leverage l USING (company_id)
+LEFT JOIN abnormal a ON a.company_id = s.company_id AND a.trading_day = s.day
+ORDER BY s.day, s.news_ratio DESC;

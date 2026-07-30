@@ -21,6 +21,15 @@ the energy version exactly. All files are **tab-delimited, UTF-8, with a header 
 
 The following files are available as a single zip file `gdelt_gkg_energy_nov1-14_2021.zip` stored with GIT LFS as listed here https://github.com/matthiasweidlich/EMIP-Benchmark/blob/main/data/04-gdelt-news-events/.gitattributes .
 
+> **Status 2026-07-30**: the LFS object for that zip is not on the remote (only
+> `.gitattributes` was pushed), so the zip cannot be fetched. Until it lands,
+> `04-gdelt-news-events/build_full_tables.py` regenerates every file in this
+> manifest from GDELT's public 1.0 archive — row counts reproduce the table
+> below exactly. One deviation: the Nov 1–7 `ENERGY_*` columns stay empty
+> (the energy classifier output is only committed for Nov 8–14). The silver
+> build auto-uses the full two-week tables when present
+> (`silver/sql_optional/news_full.sql`), else the committed energy files.
+
 | File | Level | Rows | Notes |
 |---|---|---|---|
 | `gdelt_20211101-07_merged.CSV` | events | 725,518 | Nov 1–7 CAMEO events, 58 cols |

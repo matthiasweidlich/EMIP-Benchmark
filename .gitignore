@@ -20,3 +20,9 @@ data/06-weather/sensor_community_weather_raw_days/
 data/06-weather/sensor_community_weather_western_europe_*/
 data/06-weather/sensor_community_weather_western_europe_*_sorted.csv
 data/02-instrument-company-metadata/cache_yahoo_resolution.jsonl
+
+# regenerated full GDELT tables + raw feed downloads (build_full_tables.py)
+data/04-gdelt-news-events/raw_gdelt/
+data/04-gdelt-news-events/gdelt_202111*_merged.CSV
+data/04-gdelt-news-events/gkg_all_enriched_nov*.csv.gz
+data/04-gdelt-news-events/gkg_all_event_link_nov*.csv.gz
