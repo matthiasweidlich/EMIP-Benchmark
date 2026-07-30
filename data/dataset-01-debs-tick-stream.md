@@ -16,7 +16,10 @@ Amsterdam (`NL`), and Frankfurt/Xetra (`ETR`).
 
 The two weekend files together contain 5,499 of the 5,504 documented symbols —
 effectively the full instrument universe. The five weekday files are ~5 GB each
-and are not committed; use the Zenodo links below.
+and are not committed (gitignored); use the Zenodo links below. The current
+working setup downloads **day-08 and day-09** locally to keep data volume
+limited — together with the weekend files that yields 5,502 distinct symbols
+(the extra three are Paris index feeds only active on weekdays).
 
 ## Links to Data Files
  - https://zenodo.org/records/6382482/files/debs2022-gc-trading-day-08-11-21.csv?download=1
@@ -52,7 +55,12 @@ Real sample rows (selected columns):
 ## ETL Notes
 
 - Skip `#` comment lines (preamble and the in-line description row); the CSV is
-  not strictly RFC 4180 (ragged rows, needs lenient parsing).
+  not strictly RFC 4180 (ragged rows, needs lenient parsing). Parser pitfall:
+  DuckDB's `comment='#'` option eats the first byte of the first data row after
+  the in-line description line (producing a phantom `0HN5C.ETR` symbol), and
+  default quote handling can glue lines — parse with `header=false`, explicit
+  column names, `quote=''`, and filter out `#`/header rows instead (see
+  `../02-instrument-company-metadata/extract_symbol_universe.py`).
 - Parse separate `Date` and `Time` fields into an event-time timestamp;
   times are local CET (UTC+1 during the benchmark week) — normalize to UTC.
 - Known quality issues in the weekend files: a few rows with empty `Date`,

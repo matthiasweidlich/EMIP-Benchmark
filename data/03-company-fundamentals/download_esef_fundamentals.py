@@ -88,14 +88,22 @@ def fetch(url, timeout=90, retries=5, sleep=5, accept="application/vnd.api+json"
 
 # ---------------------------------------------------------------- step 1
 def load_universe():
-    """DEBS equity symbols with ISIN, plus Yahoo metadata where resolved."""
+    """DEBS equity symbols with ISIN, plus Yahoo metadata where resolved.
+
+    Prefers the full-week universe files (extract_symbol_universe.py) and
+    falls back to the weekend-only extraction."""
+    sym_file = os.path.join(META_DIR, "symbols_week.txt")
+    isin_file = os.path.join(META_DIR, "sym_isin_week.txt")
+    if not os.path.exists(sym_file):
+        sym_file = os.path.join(META_DIR, "symbols_weekend.txt")
+        isin_file = os.path.join(META_DIR, "sym_isin.txt")
     types = {}
-    with open(os.path.join(META_DIR, "symbols_weekend.txt")) as fh:
+    with open(sym_file) as fh:
         for line in fh:
             sym, _, typ = line.strip().partition(",")
             types[sym] = typ
     sym_isin = []
-    with open(os.path.join(META_DIR, "sym_isin.txt")) as fh:
+    with open(isin_file) as fh:
         for line in fh:
             sym, _, isin = line.strip().partition(",")
             if types.get(sym) == "E" and isin:

@@ -10,7 +10,11 @@ context (weather drives both energy demand and renewable generation). See
 | File | Description |
 |---|---|
 | `sensor_community_weather_western_europe_sample_100mb.csv` | 100 MB sample: ~1.7M rows, ~12k sensors, covering the **first ~6 hours** of 2021-11-08 |
-| `download_sensor_community_weather_days.py`, `filter_and_merge_western_europe.py`, `merge_common_schema_sorted.py`, `run_all.sh` | Scripts to regenerate the full week (~3 GB, one globally time-sorted CSV) |
+| `sensor_community_weather_western_europe_2021-11-08_2021-11-14_sorted.csv` | **Full week** (gitignored, regenerate via scripts): 30,610,499 rows, 1.8 GB, one globally time-sorted CSV from 57,656 Western-European sensor-day files |
+| `download_sensor_community_weather_days.py`, `filter_and_merge_western_europe.py`, `merge_common_schema_sorted.py`, `run_all.sh` | Regeneration pipeline (download ~86k global weather-sensor files for the week, filter by coordinates, external merge sort; ~2 h total) |
+
+The silver build automatically uses the full-week file when present, else the
+committed sample.
 
 ## Schema and Sample Tuples
 

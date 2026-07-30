@@ -11,10 +11,14 @@ for the full extraction methodology.
 
 | File | Rows | Description |
 |---|---|---|
-| `symbols_weekend.txt` | 5,499 | Full instrument universe as `symbol,type` (`E` = equity: 2,996, `I` = index: 2,503) |
+| `symbols_week.txt` | 5,502 | **Canonical universe** from all downloaded DEBS days (weekend + day-08/09): `symbol,type` (`E`: 2,996, `I`: 2,506) — via `extract_symbol_universe.py` |
+| `sym_isin_week.txt` | 5,490 | **Canonical** `symbol,ISIN` map from the same files |
+| `symbols_weekend.txt` | 5,499 | Weekend-only extraction (kept for provenance; `E`: 2,996, `I`: 2,503) |
+| `sym_isin.txt` | 5,486 | Weekend-only `symbol,ISIN` map |
 | `equities_symbols.txt` | 2,996 | Equity symbols, one per line (DEBS format, e.g. `SIE.ETR`) |
-| `indices_symbols.txt` | 2,503 | Index symbols |
-| `sym_isin.txt` | 5,486 | `symbol,ISIN` map extracted from the weekend tick files |
+| `indices_symbols.txt` | 2,503 | Index symbols (weekend extraction) |
+| `extract_symbol_universe.py` | — | Rebuilds the universe files from whatever DEBS days are on disk |
+| `resolve_yahoo_metadata.py` | — | Re-runs the two-pass Yahoo resolution for unresolved/new equities (cached, resumable) |
 | `table1_equities_metadata.csv` | 2,119 | Resolved equities: DEBS symbol, Yahoo ticker, name, sector, industry, country, currency, market cap, ISIN |
 | `table2_sector_by_exchange.csv` | — | Summary pivot: resolved equities per sector × exchange |
 | `table3_unresolved_symbols.csv` | 877 | Unresolved symbols with status (`isin_not_found`, `no_data`) |
@@ -33,6 +37,9 @@ for the full extraction methodology.
 - Coverage is deliberately partial: 2,119 of 2,996 equities resolved (71%),
   1,702 with sector/industry. The 877 unresolved symbols (mostly delisted,
   merged, or renamed since Nov 2021) are a data-quality workload, not an error.
+  A full re-run of the resolution (2026-07, over the extended day-08/09
+  universe and refreshed ISINs) recovered **zero** additional equities —
+  the unresolved set is genuinely unresolvable via present-day Yahoo.
 - Notable gap: Royal Dutch Shell (`RDSA.NL`, ISIN `GB00B03MLX29`) is
   unresolved because the company renamed to Shell plc (`SHEL`) in Jan 2022 —
   relevant when joining GDELT ticker mentions (dataset 04).

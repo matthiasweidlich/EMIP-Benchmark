@@ -3,29 +3,43 @@ CREATE SCHEMA IF NOT EXISTS bronze;
 CREATE SCHEMA IF NOT EXISTS silver;
 
 -- DEBS tick files: '#' comment preamble + in-line comment header, ragged rows.
+-- Parsed without header/comment detection: DuckDB's comment handling eats the
+-- first byte of the first data row after an in-line comment line, and default
+-- quote handling can glue lines (the files use no quoting). One physical line
+-- = one row; preamble/header/description rows are filtered out.
 -- Read one file per branch: multi-file globs confuse the sniffer on this format.
+CREATE OR REPLACE MACRO bronze_read_ticks(path) AS TABLE
+SELECT * FROM read_csv(path,
+    header = false, all_varchar = true, quote = '',
+    strict_mode = false, null_padding = true, sample_size = -1,
+    names = ['ID', 'SecType', 'Date', 'Time', 'Ask', 'Ask volume', 'Bid',
+             'Bid volume', 'Ask time', 'Day''s high ask', 'Close', 'Currency',
+             'Day''s high ask time', 'Day''s high', 'ISIN', 'Auction price',
+             'Day''s low ask', 'Day''s low', 'Day''s low ask time', 'Open',
+             'Nominal value', 'Last', 'Last volume', 'Trading time',
+             'Total volume', 'Mid price', 'Trading date', 'Profit',
+             'Current price', 'Related indices', 'Day high bid time',
+             'Day low bid time', 'Open Time', 'Last trade time', 'Close Time',
+             'Day high Time', 'Day low Time', 'Bid time', 'Auction Time'])
+WHERE ID IS NOT NULL AND ID NOT LIKE '#%' AND ID <> 'ID';
+
 CREATE OR REPLACE VIEW bronze.market_tick AS
 SELECT *, 'debs2022-gc-trading-day-13-11-21.csv' AS filename
-FROM read_csv('data/01-debs-tick-stream/debs2022-gc-trading-day-13-11-21.csv',
-    header = true, comment = '#', all_varchar = true,
-    strict_mode = false, null_padding = true, sample_size = -1)
+FROM bronze_read_ticks('data/01-debs-tick-stream/debs2022-gc-trading-day-13-11-21.csv')
 UNION ALL
 SELECT *, 'debs2022-gc-trading-day-14-11-21.csv' AS filename
-FROM read_csv('data/01-debs-tick-stream/debs2022-gc-trading-day-14-11-21.csv',
-    header = true, comment = '#', all_varchar = true,
-    strict_mode = false, null_padding = true, sample_size = -1)
+FROM bronze_read_ticks('data/01-debs-tick-stream/debs2022-gc-trading-day-14-11-21.csv')
 UNION ALL
 SELECT *, 'debs2022-gc-trading-day-08-11-21_sample100.csv' AS filename
-FROM read_csv('data/01-debs-tick-stream/debs2022-gc-trading-day-08-11-21_sample100.csv',
-    header = true, comment = '#', all_varchar = true,
-    strict_mode = false, null_padding = true, sample_size = -1);
+FROM bronze_read_ticks('data/01-debs-tick-stream/debs2022-gc-trading-day-08-11-21_sample100.csv');
 
+-- Full-week universe (extract_symbol_universe.py over all downloaded DEBS days).
 CREATE OR REPLACE VIEW bronze.symbols AS
-SELECT * FROM read_csv('data/02-instrument-company-metadata/symbols_weekend.txt',
+SELECT * FROM read_csv('data/02-instrument-company-metadata/symbols_week.txt',
                        header = false, names = ['symbol', 'sec_type']);
 
 CREATE OR REPLACE VIEW bronze.sym_isin AS
-SELECT * FROM read_csv('data/02-instrument-company-metadata/sym_isin.txt',
+SELECT * FROM read_csv('data/02-instrument-company-metadata/sym_isin_week.txt',
                        header = false, names = ['symbol', 'isin']);
 
 CREATE OR REPLACE VIEW bronze.equities_metadata AS

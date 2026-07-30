@@ -10,8 +10,8 @@ Each dataset has a numbered directory with the actual files and a matching
 
 | # | Dataset | Directory | Documentation | Data in repo |
 |---|---|---|---|---|
-| 01 | DEBS tick stream | [01-debs-tick-stream/](01-debs-tick-stream/) | [dataset-01-debs-tick-stream.md](dataset-01-debs-tick-stream.md) | Weekend days full (`day-13`, `day-14`); weekday sample; full week via Zenodo links (~25 GB) |
-| 02 | Instrument & company metadata | [02-instrument-company-metadata/](02-instrument-company-metadata/) | [dataset-02-company-security-mapping.md](dataset-02-company-security-mapping.md) | Complete (symbol lists, ISIN map, resolved/unresolved metadata) |
+| 01 | DEBS tick stream | [01-debs-tick-stream/](01-debs-tick-stream/) | [dataset-01-debs-tick-stream.md](dataset-01-debs-tick-stream.md) | Weekend days committed; `day-08`/`day-09` downloaded locally (gitignored, ~10 GB); full week via Zenodo links (~25 GB) |
+| 02 | Instrument & company metadata | [02-instrument-company-metadata/](02-instrument-company-metadata/) | [dataset-02-company-security-mapping.md](dataset-02-company-security-mapping.md) | Complete (canonical week universe + extraction/resolution scripts, resolved/unresolved metadata) |
 | 03 | Company fundamentals / filings | [03-company-fundamentals/](03-company-fundamentals/) | [dataset-03-company-fundamentals-filings.md](dataset-03-company-fundamentals-filings.md) | Complete (868 ESEF filings, 394 companies, 26.5k XBRL facts + LEI crosswalk) |
 | 04 | GDELT news & events | [04-gdelt-news-events/](04-gdelt-news-events/) | [dataset-04-gdelt-news-events.md](dataset-04-gdelt-news-events.md) | Complete (zipped full week + samples) |
 | 05 | Electricity prices & grid context | [05-electricity-prices/](05-electricity-prices/) | [dataset-05-electricity-prices.md](dataset-05-electricity-prices.md) | Complete (ENTSO-E 15-min prices/load/generation/flows; day-ahead prices, 6 zones) |
