@@ -13,17 +13,16 @@ alerts, dashboards, and long-term strategic projections/trends.
 See [docs/scenario.md](docs/scenario.md) for an extended description of
 the benchmark scenario and workload classes.
 
-See [docs/gold-schema.md](docs/gold-schema.md) for the source-backed
-gold-level relational schema that can be filled from the files under
-`data/`.
+## Datasets
 
-## Dataset Sketch
+The bronze-level source data lives in [data/](data/) — one numbered directory
+plus a `dataset-0X-*.md` document per source (see [data/README.md](data/README.md)
+for the index and conventions):
 
-The first sample dataset package is in [datasets/sample-pre-etl](datasets/sample-pre-etl). It contains small pre-ETL examples for the main source layers:
-
-- DEBS-style market ticks
-- company/security mapping
-- company fundamentals and filings
-- GDELT-style news events
-- EIA-style energy context
-- climate and emissions exposure
+- DEBS 2022 market tick stream (high-volume streaming input)
+- instrument and company metadata / identifier mapping
+- company fundamentals and filings (ESEF/ESMA XBRL)
+- GDELT news events with energy enrichment
+- electricity prices and grid context (ENTSO-E)
+- weather observations (Sensor.Community)
+- climate and emissions exposure (planned)

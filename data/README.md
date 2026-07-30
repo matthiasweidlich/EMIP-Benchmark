@@ -1,27 +1,48 @@
-# Climate Finance Streaming Benchmark Sample Dataset
+# EMIP Bronze-Level Source Data
 
-This folder contains a small pre-ETL sample dataset for a streaming benchmark inspired by a climate-finance market intelligence company.
+This directory contains the raw (bronze-level) source data for the EMIP benchmark.
+All sources cover the DEBS 2022 Grand Challenge week, **2021-11-08 to 2021-11-14**.
 
-The scenario combines a high-volume European market tick stream with public data sources that enrich stock-price prediction, dashboard queries, materialized views, and ETL workloads.
+Each dataset has a numbered directory with the actual files and a matching
+`dataset-0X-*.md` document describing schema, provenance, and ETL notes.
 
-## Files
+## Datasets
 
-| File | Source Part | Purpose |
-|---|---|---|
-| [dataset-01-debs-tick-stream.md](dataset-01-debs-tick-stream.md) | Market stream | Raw trading ticks before feature extraction |
-| [dataset-02-company-security-mapping.md](dataset-02-company-security-mapping.md) | Entity mapping | Raw identifier mappings across symbols, ISINs, LEIs, and names |
-| [dataset-03-company-fundamentals-filings.md](dataset-03-company-fundamentals-filings.md) | Fundamentals | Raw filing/fundamental facts before normalization |
-| [dataset-04-gdelt-news-events.md](dataset-04-gdelt-news-events.md) | News/events | Raw event and text signals before company/entity resolution |
-| [dataset-05-eia-energy-context.md](dataset-05-eia-energy-context.md) | Energy context | Raw energy-market indicators before alignment with companies/sectors |
-| [dataset-06-climate-emissions-exposure.md](dataset-06-climate-emissions-exposure.md) | Climate exposure | Raw facility/source emissions before owner resolution |
+| # | Dataset | Directory | Documentation | Data in repo |
+|---|---|---|---|---|
+| 01 | DEBS tick stream | [01-debs-tick-stream/](01-debs-tick-stream/) | [dataset-01-debs-tick-stream.md](dataset-01-debs-tick-stream.md) | Weekend days full (`day-13`, `day-14`); weekday sample; full week via Zenodo links (~25 GB) |
+| 02 | Instrument & company metadata | [02-instrument-company-metadata/](02-instrument-company-metadata/) | [dataset-02-company-security-mapping.md](dataset-02-company-security-mapping.md) | Complete (symbol lists, ISIN map, resolved/unresolved metadata) |
+| 03 | Company fundamentals / filings | [03-company-fundamentals/](03-company-fundamentals/) | [dataset-03-company-fundamentals-filings.md](dataset-03-company-fundamentals-filings.md) | Complete (868 ESEF filings, 394 companies, 26.5k XBRL facts + LEI crosswalk) |
+| 04 | GDELT news & events | [04-gdelt-news-events/](04-gdelt-news-events/) | [dataset-04-gdelt-news-events.md](dataset-04-gdelt-news-events.md) | Complete (zipped full week + samples) |
+| 05 | Electricity prices & grid context | [05-electricity-prices/](05-electricity-prices/) | [dataset-05-electricity-prices.md](dataset-05-electricity-prices.md) | Complete (ENTSO-E 15-min prices/load/generation/flows; day-ahead prices, 6 zones) |
+| 06 | Weather observations | [06-weather/](06-weather/) | [dataset-06-weather.md](dataset-06-weather.md) | 100 MB sample (first hours of Nov 8); full ~3 GB regenerated via scripts |
+| 07 | Climate / emissions exposure | — | [dataset-07-climate-emissions-exposure.md](dataset-07-climate-emissions-exposure.md) | **Planned — no data yet** (sketch only) |
+
+## Conventions
+
+- Directories are numbered `01`–`0N`; the number is stable and used in docs and pipelines.
+- Small full datasets are committed directly; larger ones are committed as `.zip`
+  or regenerated with the scripts included in the dataset directory.
+- Every large file has a small `*_sample100.csv` companion committed in plain text
+  for quick inspection and smoke tests.
+- All files are raw bronze data: file-specific quirks (comment headers, sparse
+  columns, sentinel values, mixed timezones) are preserved on purpose and handled
+  in the silver layer.
+
+## Timezone Summary
+
+| Dataset | Timestamp semantics |
+|---|---|
+| 01 DEBS ticks | Naive local time, CET (UTC+1); separate `Date` and `Time` columns |
+| 03 Fundamentals | Dates only (period end, filing/publication date) |
+| 04 GDELT | Publication **date** only (`YYYYMMDD`, UTC days); no intra-day time in GKG 1.0 |
+| 05 Electricity | Timezone-aware Europe/Berlin (`+01:00`); day-ahead file also has explicit UTC |
+| 06 Weather | Naive UTC |
 
 ## Integration Goal
 
-The ETL workload should normalize timestamps, resolve identifiers, classify companies and sectors, align market ticks with context signals, and produce integrated tables such as:
-
-- `instrument_live_features`
-- `company_profile`
-- `company_news_signal`
-- `company_transition_exposure`
-- `prediction_feature_store`
-- `sector_market_state`
+The ELT workload normalizes timestamps to UTC, resolves identifiers
+(DEBS symbol ↔ ISIN ↔ ticker ↔ company ↔ LEI), classifies companies and
+sectors, aligns market ticks with context signals, and produces integrated
+silver/gold tables (see [../docs/scenario.md](../docs/scenario.md) for the
+workload classes they serve).

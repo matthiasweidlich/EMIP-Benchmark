@@ -1,4 +1,8 @@
-# Source 6: Climate / Emissions Exposure
+# Source 7: Climate / Emissions Exposure
+
+**Status: planned — no data in the repo yet.** The tuples below are an
+illustrative sketch of the intended shape (Climate TRACE / EPA-style facility
+data), kept for when this source is added.
 
 Raw facility or asset-level emissions exposure. This source supports transition-risk and climate-exposure materialized views.
 

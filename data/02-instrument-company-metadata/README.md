@@ -12,10 +12,11 @@ Source data license: CC BY-NC-SA 4.0 (© Infront Financial Technology GmbH).
 
 ## Raw data (from Zenodo)
 
-| File | Description |
-|---|---|
-| `day13.csv` | `debs2022-gc-trading-day-13-11-21.csv` — raw tick data, Saturday 2021-11-13 (~3 MB, 39 columns: ID, SecType, Date, Time, bid/ask, ISIN, …) |
-| `day14.csv` | `debs2022-gc-trading-day-14-11-21.csv` — raw tick data, Sunday 2021-11-14 (~2 MB) |
+The raw weekend tick files this extraction is based on live in the tick-stream
+dataset directory:
+[`../01-debs-tick-stream/`](../01-debs-tick-stream/)
+(`debs2022-gc-trading-day-13-11-21.csv`, Saturday, ~3 MB, and
+`debs2022-gc-trading-day-14-11-21.csv`, Sunday, ~2 MB; 39 columns).
 
 Only the two small weekend files were downloaded (the five weekday files are ~5 GB each).
 Together they contain 5,499 of the 5,504 documented symbols — effectively the full universe.

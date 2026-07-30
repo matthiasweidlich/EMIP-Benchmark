@@ -1,9 +1,18 @@
-# Source 4: GDELT / News Events
-
-# GDELT Energy-Market Enrichment — Nov 8–14, 2021
+# Source 4: GDELT News Events — Energy-Market Enrichment, Nov 8–14, 2021
 
 Built from the **GDELT GKG 1.0** daily files (`YYYYMMDD.gkg.csv`) for the week, filtered to
-energy-relevant documents and linked to the **CAMEO Event** files already downloaded.
+energy-relevant documents and linked to the **CAMEO Event** files (the raw CAMEO
+event files themselves are not in the repo; the link table below carries the
+relevant event attributes denormalized).
+
+## Files In This Repo (`04-gdelt-news-events/`)
+
+| File | Description |
+|---|---|
+| `gkg_energy_enriched.zip` | Table 1, full week (49,298 rows, 26 MB unzipped) |
+| `gkg_energy_enriched_sample100.csv` | Table 1, first 100 rows |
+| `gkg_energy_event_link.zip` | Table 2, full week (224,424 rows, 278 MB unzipped) |
+| `gkg_energy_event_link_sample100.csv` | Table 2, first 100 rows |
 
 - GKG records scanned: **430,918**
 - Energy-relevant records: **49,298** (11.4%)
@@ -55,6 +64,17 @@ Both files are **tab-delimited, UTF-8, with a header row**.
 ---
 
 ## Notes & caveats
+- **Join keys:** Table 2 joins to Table 1 on `(SourceURL, DATE)` — verified
+  complete (all 22,881 distinct link URLs match a Table 1 row). `SOURCEURL`
+  can contain multiple `<UDIV>`-separated URLs (5,630 rows); split before
+  URL-level dedup.
+- **Date-only granularity:** GKG 1.0 provides a publication *date*, not a
+  time. Replaying "by publication time" requires a documented intra-day time
+  assignment (or a switch to the 15-min GKG 2.1 feed).
+- **Tickers are US/LSE-style** (e.g. `SHEL`, `XOM`, `NG.L`), not DEBS symbols;
+  resolve via `table1_equities_metadata.csv.yahoo_ticker` (~half match
+  directly) plus a rename crosswalk (e.g. `SHEL` → `RDSA.NL`, renamed Jan 2022).
+  Only ~3.8% of documents carry ticker tags.
 - **Tone is GDELT document-level tone**, not a finance-tuned sentiment model. It is a reasonable
   first-order bull/bear proxy; a FinBERT pass on titles would sharpen it.
 - **Ticker precision** favored over recall: exact-name + collision-free word-boundary matching only,

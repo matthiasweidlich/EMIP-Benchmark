@@ -1,0 +1,11 @@
+# local tools
+/duckdb
+*.duckdb
+
+# python
+__pycache__/
+.venv/
+
+# extracted archives (keep the .zip files, not their contents)
+data/04-gdelt-news-events/gkg_energy_enriched.csv
+data/04-gdelt-news-events/gkg_energy_event_link.csv
