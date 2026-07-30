@@ -10,6 +10,7 @@ are kept in `*_rejects` tables for the data-quality workloads.
 ```bash
 pip install duckdb   # python3 + duckdb package required
 silver/build.sh      # writes silver/emip.duckdb
+gold/build.sh        # full rebuild: silver + gold layer + dashboard smoke queries
 ```
 
 The build unzips the GDELT archives in place (extracted CSVs are gitignored),

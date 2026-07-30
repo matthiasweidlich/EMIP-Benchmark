@@ -11,7 +11,10 @@ and prepare the data. The resulting platform supports real-time
 alerts, dashboards, and long-term strategic projections/trends.
 
 See [docs/scenario.md](docs/scenario.md) for an extended description of
-the benchmark scenario and workload classes.
+the benchmark scenario and workload classes, and
+[docs/gold-schema.md](docs/gold-schema.md) for the dashboard-driven
+gold-level schema (built by [gold/build.sh](gold/build.sh) on top of the
+[silver layer](silver/README.md)).
 
 ## Datasets
 

@@ -44,5 +44,5 @@ Each dataset has a numbered directory with the actual files and a matching
 The ELT workload normalizes timestamps to UTC, resolves identifiers
 (DEBS symbol ↔ ISIN ↔ ticker ↔ company ↔ LEI), classifies companies and
 sectors, aligns market ticks with context signals, and produces integrated
-silver/gold tables (see [../docs/scenario.md](../docs/scenario.md) for the
-workload classes they serve).
+silver tables ([../silver/](../silver/README.md)) and gold-level dashboards
+state ([../docs/gold-schema.md](../docs/gold-schema.md)).

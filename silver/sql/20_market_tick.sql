@@ -30,22 +30,23 @@ FROM bronze.market_tick;
 
 -- CET = UTC+1 constantly during 2021-11-08..14 (no DST transition in window).
 CREATE OR REPLACE TABLE silver.market_tick AS
+-- Non-positive prices are placeholders (e.g. Last = 0.0), not prices: NULL them.
 SELECT instrument_id, sec_type,
        event_time_local - INTERVAL 1 HOUR AS event_time_utc,
        trading_time_local - INTERVAL 1 HOUR AS trading_time_utc,
        trading_date,
-       bid * price_scale AS bid,
+       CASE WHEN bid > 0 THEN bid * price_scale END AS bid,
        bid_volume,
-       ask * price_scale AS ask,
+       CASE WHEN ask > 0 THEN ask * price_scale END AS ask,
        ask_volume,
-       last * price_scale AS last,
+       CASE WHEN last > 0 THEN last * price_scale END AS last,
        last_volume,
        total_volume,
-       mid_price * price_scale AS mid_price,
-       open * price_scale AS open,
-       close * price_scale AS close,
-       day_high * price_scale AS day_high,
-       day_low * price_scale AS day_low,
+       CASE WHEN mid_price > 0 THEN mid_price * price_scale END AS mid_price,
+       CASE WHEN open > 0 THEN open * price_scale END AS open,
+       CASE WHEN close > 0 THEN close * price_scale END AS close,
+       CASE WHEN day_high > 0 THEN day_high * price_scale END AS day_high,
+       CASE WHEN day_low > 0 THEN day_low * price_scale END AS day_low,
        currency, currency_raw, isin, source_file, source_row
 FROM _tick_parsed
 WHERE event_time_local IS NOT NULL;

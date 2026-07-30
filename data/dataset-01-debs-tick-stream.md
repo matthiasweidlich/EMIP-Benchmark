@@ -59,6 +59,10 @@ Real sample rows (selected columns):
   ~17% with empty or malformed `Time` (literal `::`), column names with
   leading spaces, currencies other than EUR (USD, GBP, SEK, CHF, JPY, and
   `XXP` = pence, to be scaled by 1/100 to GBP).
+- **All price fields in the weekend files are zero-valued placeholders**
+  (`Last`, `Bid`, `Ask`, … are 0.0 where present): Saturday/Sunday rows are
+  status/metadata updates, not quotes. The weekend files define the
+  instrument universe; real prices require the weekday files.
 - Resolve `ID` and `ISIN` to canonical instruments (see dataset 02); the same
   ISIN can trade under different symbols on multiple exchanges.
 - Filter or separately model indices where `SecType = I` (indices update
