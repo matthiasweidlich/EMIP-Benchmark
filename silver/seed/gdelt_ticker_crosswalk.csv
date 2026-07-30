@@ -1,0 +1,6 @@
+gdelt_ticker,isin,company_name,note
+SHEL,GB00B03MLX29,Shell plc,renamed from Royal Dutch Shell (RDSA) in Jan 2022; DEBS RDSA.NL / A0D94M.ETR
+BP,GB0007980591,BP plc,Xetra cross-listing 850517.ETR
+TTE,FR0000120271,TotalEnergies SE,US ADR ticker; DEBS TTE.FR / 850727.ETR
+EDF.PA,FR0010242511,Electricite de France SA,DEBS EDF.FR / A0HG6A.ETR
+UN01.DE,DE000UNSE018,Uniper SE,DEBS UNSE01.ETR; delisted 2023 so unresolved on Yahoo today

@@ -1,0 +1,67 @@
+-- Bronze views: read raw source files as-is (lenient parsing, no cleaning).
+CREATE SCHEMA IF NOT EXISTS bronze;
+CREATE SCHEMA IF NOT EXISTS silver;
+
+-- DEBS tick files: '#' comment preamble + in-line comment header, ragged rows.
+-- Read one file per branch: multi-file globs confuse the sniffer on this format.
+CREATE OR REPLACE VIEW bronze.market_tick AS
+SELECT *, 'debs2022-gc-trading-day-13-11-21.csv' AS filename
+FROM read_csv('data/01-debs-tick-stream/debs2022-gc-trading-day-13-11-21.csv',
+    header = true, comment = '#', all_varchar = true,
+    strict_mode = false, null_padding = true, sample_size = -1)
+UNION ALL
+SELECT *, 'debs2022-gc-trading-day-14-11-21.csv' AS filename
+FROM read_csv('data/01-debs-tick-stream/debs2022-gc-trading-day-14-11-21.csv',
+    header = true, comment = '#', all_varchar = true,
+    strict_mode = false, null_padding = true, sample_size = -1)
+UNION ALL
+SELECT *, 'debs2022-gc-trading-day-08-11-21_sample100.csv' AS filename
+FROM read_csv('data/01-debs-tick-stream/debs2022-gc-trading-day-08-11-21_sample100.csv',
+    header = true, comment = '#', all_varchar = true,
+    strict_mode = false, null_padding = true, sample_size = -1);
+
+CREATE OR REPLACE VIEW bronze.symbols AS
+SELECT * FROM read_csv('data/02-instrument-company-metadata/symbols_weekend.txt',
+                       header = false, names = ['symbol', 'sec_type']);
+
+CREATE OR REPLACE VIEW bronze.sym_isin AS
+SELECT * FROM read_csv('data/02-instrument-company-metadata/sym_isin.txt',
+                       header = false, names = ['symbol', 'isin']);
+
+CREATE OR REPLACE VIEW bronze.equities_metadata AS
+SELECT * FROM read_csv('data/02-instrument-company-metadata/table1_equities_metadata.csv', header = true);
+
+CREATE OR REPLACE VIEW bronze.unresolved_symbols AS
+SELECT * FROM read_csv('data/02-instrument-company-metadata/table3_unresolved_symbols.csv', header = true);
+
+CREATE OR REPLACE VIEW bronze.esef_company_match AS
+SELECT * FROM read_csv('data/03-company-fundamentals/esef_company_match.csv', header = true);
+
+CREATE OR REPLACE VIEW bronze.esef_filings AS
+SELECT * FROM read_csv('data/03-company-fundamentals/esef_filings.csv', header = true);
+
+CREATE OR REPLACE VIEW bronze.esef_fundamentals AS
+SELECT * FROM read_csv('data/03-company-fundamentals/esef_fundamentals.csv',
+                       header = true, all_varchar = true);
+
+-- GDELT full files must be unzipped first (build.sh does this).
+CREATE OR REPLACE VIEW bronze.gkg_energy AS
+SELECT * FROM read_csv('data/04-gdelt-news-events/gkg_energy_enriched.csv',
+                       delim = '\t', header = true, quote = '', sample_size = -1);
+
+CREATE OR REPLACE VIEW bronze.gkg_event_link AS
+SELECT * FROM read_csv('data/04-gdelt-news-events/gkg_energy_event_link.csv',
+                       delim = '\t', header = true, quote = '', sample_size = -1);
+
+CREATE OR REPLACE VIEW bronze.electricity_day_ahead AS
+SELECT * FROM read_csv('data/05-electricity-prices/electricity_day_ahead_prices_2021-11-08_2021-11-14.csv', header = true);
+
+CREATE OR REPLACE VIEW bronze.entsoe AS
+SELECT * FROM read_csv('data/05-electricity-prices/entsoe_debs2022_nov2021.csv', header = true);
+
+CREATE OR REPLACE VIEW bronze.weather AS
+SELECT * FROM read_csv('data/06-weather/sensor_community_weather_western_europe_sample_100mb.csv',
+                       header = true, sample_size = -1);
+
+CREATE OR REPLACE VIEW bronze.gdelt_ticker_crosswalk AS
+SELECT * FROM read_csv('silver/seed/gdelt_ticker_crosswalk.csv', header = true);
