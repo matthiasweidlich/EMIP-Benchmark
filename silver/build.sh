@@ -33,6 +33,23 @@ for path in sorted(glob.glob("silver/sql/*.sql")):
         print(f"== using full weather file {FULL_WEATHER}", flush=True)
         con.execute(f"""CREATE OR REPLACE VIEW bronze.weather AS
             SELECT * FROM read_csv('{FULL_WEATHER}', header=true, sample_size=-1)""")
+    # Include any locally downloaded full weekday tick files (gitignored,
+    # ~5 GB each) next to the committed weekend files. The day-08 sample100
+    # is dropped when the full day-08 file is present (it is a subset).
+    if path.endswith("00_bronze_views.sql"):
+        tick_dir = "data/01-debs-tick-stream"
+        weekday = sorted(p for d in ("08", "09", "10", "11", "12")
+                         for p in glob.glob(f"{tick_dir}/debs2022-gc-trading-day-{d}-11-21.csv"))
+        if weekday:
+            files = [f"{tick_dir}/debs2022-gc-trading-day-13-11-21.csv",
+                     f"{tick_dir}/debs2022-gc-trading-day-14-11-21.csv"] + weekday
+            if not any(p.endswith("day-08-11-21.csv") for p in weekday):
+                files.append(f"{tick_dir}/debs2022-gc-trading-day-08-11-21_sample100.csv")
+            print(f"== tick files: {', '.join(os.path.basename(f) for f in files)}", flush=True)
+            union = "\nUNION ALL\n".join(
+                f"SELECT *, '{os.path.basename(f)}' AS filename FROM bronze_read_ticks('{f}')"
+                for f in files)
+            con.execute(f"CREATE OR REPLACE VIEW bronze.market_tick AS\n{union}")
 print("== row counts")
 print(con.sql("""
     SELECT table_name, estimated_size AS rows

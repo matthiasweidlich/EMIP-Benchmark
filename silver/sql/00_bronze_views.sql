@@ -7,11 +7,12 @@ CREATE SCHEMA IF NOT EXISTS silver;
 -- first byte of the first data row after an in-line comment line, and default
 -- quote handling can glue lines (the files use no quoting). One physical line
 -- = one row; preamble/header/description rows are filtered out.
--- Read one file per branch: multi-file globs confuse the sniffer on this format.
+-- Read one file per branch: multi-file globs confuse the sniffer on this format,
+-- and the parallel reader rejects the multi-GB weekday files (parallel = false).
 CREATE OR REPLACE MACRO bronze_read_ticks(path) AS TABLE
 SELECT * FROM read_csv(path,
     header = false, all_varchar = true, quote = '',
-    strict_mode = false, null_padding = true, sample_size = -1,
+    strict_mode = false, null_padding = true, sample_size = -1, parallel = false,
     names = ['ID', 'SecType', 'Date', 'Time', 'Ask', 'Ask volume', 'Bid',
              'Bid volume', 'Ask time', 'Day''s high ask', 'Close', 'Currency',
              'Day''s high ask time', 'Day''s high', 'ISIN', 'Auction price',
