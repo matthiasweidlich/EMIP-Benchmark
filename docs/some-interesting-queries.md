@@ -10,7 +10,7 @@
   - Sector momentum, last hour: averages an already-derived feature column (market_feature.return_value) grouped up through the sector dimension chain. Tests that rollups over derived state
   don't require re-deriving the join at query time.
 
-# Cross-domain temporal joins — the distinctive part of this schema
+# Cross-domain temporal joins
   - News-driven price move: joins CAMEO events → documents → ticker mentions → instrument/company, then joins to market_feature within a day-long window after the event, filtered to
   significant Goldstein scores. A genuine time-range join condition, not equality — and a selective predicate that has to push through several join hops.
   - As-of join for electricity price: for each utility-sector tick, finds the most recent electricity price at or before that tick's timestamp via a correlated LATERAL subquery. The classic
