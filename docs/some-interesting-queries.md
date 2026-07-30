@@ -32,3 +32,18 @@
   tables and materialized/derived tables in one query — relevant because in a real deployment some of these will be physical tables and others views, and the query has to treat them
   uniformly.
 
+# Core dimensional joins
+  - Instrument → company → sector resolution chain: walks the full join path from a traded instrument to its human-readable company name and sector classification. The simplest possible
+  correctness check — does the join graph actually resolve end-to-end.
+  - Company count / market cap by sector & exchange: aggregates over that same join chain, grouped by exchange and sector. A baseline sanity query before anything harder.
+
+# Feature / label generation
+  - market_feature construction: a wide join blending market bars, hourly-aggregated news sentiment, and hourly electricity price into one feature row per instrument per hour. The hard part
+  is reconciling mismatched natural grains — tick-level, per-document, and hourly — onto a single hourly grid.
+  - Future-return label: a LEAD() window function looking a fixed interval ahead to compute the return actually realized after a given point, for supervised-learning labels. Tests
+  forward-looking, time-offset window functions and the "label uses future data, but the feature it's paired with must not" discipline of point-in-time-correct ML pipelines.
+
+
+
+
+
