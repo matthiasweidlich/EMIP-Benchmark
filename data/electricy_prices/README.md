@@ -48,3 +48,16 @@ The final file is:
 ```text
 electricity_day_ahead_prices_2021-11-08_2021-11-14.csv
 ```
+
+### Enhancement
+
+We request additional data, i.e., load and actual prices (imbalance) from ENTSO-E prices, each one new column, and crates new events every 15 min, to enhance the csv and merge information run: 
+
+```bash
+python merge_electricity_prices_and_load_15min.py \
+  --prices electricity_day_ahead_prices_2021-11-08_2021-11-14.csv \
+  --entsoe entsoe_debs2022_nov2021.csv \
+  --output electricity_prices_and_load_15min_2021-11-08_2021-11-14.csv
+```
+
+
