@@ -15,6 +15,8 @@ the benchmark scenario and workload classes, and
 [docs/gold-schema.md](docs/gold-schema.md) for the dashboard-driven
 gold-level schema (built by [gold/build.sh](gold/build.sh) on top of the
 [silver layer](silver/README.md)).
+The benchmark driver concept is sketched in
+[docs/benchmark-driver.md](docs/benchmark-driver.md).
 
 ## Datasets
 
