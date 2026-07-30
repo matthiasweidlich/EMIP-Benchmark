@@ -19,6 +19,8 @@ the energy version exactly. All files are **tab-delimited, UTF-8, with a header 
 
 ## File manifest
 
+The following files are available as a single zip file `gdelt_gkg_energy_nov1-14_2021.zip` stored with GIT LFS as listed here https://github.com/matthiasweidlich/EMIP-Benchmark/blob/main/data/04-gdelt-news-events/.gitattributes .
+
 | File | Level | Rows | Notes |
 |---|---|---|---|
 | `gdelt_20211101-07_merged.CSV` | events | 725,518 | Nov 1–7 CAMEO events, 58 cols |
