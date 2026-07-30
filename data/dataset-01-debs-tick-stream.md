@@ -2,6 +2,16 @@
 
 Raw market tick events modeled after the DEBS 2022 stock trading dataset. This source is the high-volume streaming input.
 
+## Links to Data Files
+ - https://zenodo.org/records/6382482/files/debs2022-gc-trading-day-08-11-21.csv?download=1
+ - https://zenodo.org/records/6382482/files/debs2022-gc-trading-day-09-11-21.csv?download=1
+ - https://zenodo.org/records/6382482/files/debs2022-gc-trading-day-10-11-21.csv?download=1
+ - https://zenodo.org/records/6382482/files/debs2022-gc-trading-day-11-11-21.csv?download=1
+ - https://zenodo.org/records/6382482/files/debs2022-gc-trading-day-12-11-21.csv?download=1
+ - https://zenodo.org/records/6382482/files/debs2022-gc-trading-day-13-11-21.csv?download=1
+ - https://zenodo.org/records/6382482/files/debs2022-gc-trading-day-14-11-21.csv?download=1
+
+
 ## Pre-ETL Sample Tuples
 
 | raw_symbol | exchange | sec_type | date | time | isin | currency | bid | ask | last | volume |
