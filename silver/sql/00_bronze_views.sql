@@ -80,3 +80,8 @@ SELECT * FROM read_csv('data/06-weather/sensor_community_weather_western_europe_
 
 CREATE OR REPLACE VIEW bronze.gdelt_ticker_crosswalk AS
 SELECT * FROM read_csv('silver/seed/gdelt_ticker_crosswalk.csv', header = true);
+
+-- Curated metadata for majors that present-day Yahoo lookups cannot resolve
+-- (delisted / renamed / nationalized since Nov 2021, e.g. Shell, EDF).
+CREATE OR REPLACE VIEW bronze.company_overrides AS
+SELECT * FROM read_csv('silver/seed/company_overrides.csv', header = true);

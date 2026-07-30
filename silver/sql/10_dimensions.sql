@@ -65,10 +65,11 @@ SELECT i.company_id,
        arbitrary(i.isin) AS isin,
        coalesce(any_value(nullif(t1.longName, '')),
                 any_value(nullif(t1.shortName, '')),
-                any_value(e.esef_name)) AS company_name,
-       any_value(t1.sector) AS sector,
-       any_value(t1.industry) AS industry,
-       any_value(t1.country) AS country,
+                any_value(e.esef_name),
+                any_value(o.company_name)) AS company_name,
+       coalesce(any_value(t1.sector), any_value(o.sector)) AS sector,
+       coalesce(any_value(t1.industry), any_value(o.industry)) AS industry,
+       coalesce(any_value(t1.country), any_value(o.country)) AS country,
        any_value(t1.city) AS city,
        any_value(t1.website) AS website,
        any_value(t1.currency) AS currency,
@@ -77,6 +78,7 @@ SELECT i.company_id,
 FROM inst i
 LEFT JOIN bronze.equities_metadata t1 ON t1.yahoo_ticker = i.yahoo_ticker
 LEFT JOIN esef_names e USING (company_id)
+LEFT JOIN bronze.company_overrides o ON o.isin = i.isin
 GROUP BY i.company_id, e.lei;
 
 CREATE OR REPLACE TABLE silver.sector AS
