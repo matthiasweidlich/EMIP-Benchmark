@@ -14,7 +14,7 @@ systems against exactly this workload.
 | Storage | NVMe SSD |
 | OS | Linux |
 | Engine | DuckDB 1.5.3 (Python client) |
-| Database | `silver/emip.duckdb`, **5.9 GB** after full build |
+| Database | `silver/emip.duckdb`, **5.9 GB** after full build (per-table breakdown: [table-sizes.md](table-sizes.md)) |
 
 ## Data volume (bronze inputs)
 
