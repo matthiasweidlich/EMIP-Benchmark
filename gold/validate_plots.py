@@ -50,10 +50,17 @@ def style_week_axis(ax):
     # shade the weekend (Sat 13 / Sun 14)
     ax.axvspan(mdates.datestr2num("2021-11-13 00:00"),
                mdates.datestr2num("2021-11-14 23:00"), color="gray", alpha=0.08)
+    # light shading for workday hours (09:00-17:00 CET = 08:00-16:00 UTC)
+    for d in range(8, 13):
+        ax.axvspan(mdates.datestr2num(f"2021-11-{d:02d} 08:00"),
+                   mdates.datestr2num(f"2021-11-{d:02d} 16:00"),
+                   color="tab:orange", alpha=0.06)
 
 
 def save(fig, name):
     fig.autofmt_xdate(rotation=0, ha="center")
+    fig.text(0.01, 0.002, "shading: workday hours 09-17 CET (amber), weekend (gray)",
+             fontsize=7, color="gray")
     fig.savefig(os.path.join(OUT, name), dpi=130, bbox_inches="tight")
     plt.close(fig)
     print(f"wrote gold/plots/{name}")
@@ -68,8 +75,12 @@ energy = q("""SELECT time_bucket(INTERVAL 1 HOUR, ts_utc) h,
               FROM gold.fact_energy_15min GROUP BY 1 ORDER BY 1""")
 weather = q("""SELECT time_bucket(INTERVAL 1 HOUR, observation_time_utc) h, count(*) n
                FROM silver.weather_observation GROUP BY 1 ORDER BY 1""")
-news = q("""SELECT publication_date d, count(*) n FROM silver.news_document
-            GROUP BY 1 ORDER BY 1""")
+has_all_docs = q("""SELECT count(*) n FROM information_schema.columns
+                    WHERE table_schema = 'silver' AND table_name = 'news_document'
+                      AND column_name = 'is_energy'""").n[0] > 0
+news = q(f"""SELECT publication_date d, count(*) n,
+                    count(*) FILTER ({'is_energy' if has_all_docs else 'true'}) n_energy
+             FROM silver.news_document GROUP BY 1 ORDER BY 1""")
 
 fig, axes = plt.subplots(4, 1, figsize=(14, 11), sharex=True)
 fig.suptitle("EMIP data coverage by hour, benchmark week 2021-11-08..14 (UTC)", fontsize=14)
@@ -103,9 +114,13 @@ ax.set_ylim(bottom=0)
 ax.set_title("06 weather: Sensor.Community observations per hour", fontsize=9, loc="left")
 
 ax = axes[3]
-ax.bar(news.d, news.n, width=0.8, color="tab:purple", alpha=0.7)
+ax.bar(news.d, news.n, width=0.8, color="tab:purple", alpha=0.4,
+       label="all GKG documents")
+ax.bar(news.d, news.n_energy, width=0.8, color="tab:purple", alpha=0.9,
+       label="energy-tagged")
 ax.set_ylabel("news docs / day")
-ax.set_title("04 GDELT: energy-related documents per publication day (date granularity only)",
+ax.legend(loc="upper right", fontsize=8)
+ax.set_title("04 GDELT: documents per publication day (date granularity only)",
              fontsize=9, loc="left")
 for ax in axes:
     style_week_axis(ax)
